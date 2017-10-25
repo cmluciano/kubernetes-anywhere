@@ -49,7 +49,6 @@ function(cfg)
         password: openstack.password,
         auth_url: openstack.auth_url,
         insecure: openstack.insecure,
-        cacert_file: "${file(\"%s\")}" % openstack.os_cacert,
       },
     },
 
@@ -134,40 +133,12 @@ function(cfg)
           instance_id: "${openstack_compute_instance_v2.%(master_instance)s.id}" % names,
         },
       },
-      openstack_networking_network_v2: {
-        [openstack.network_name]: {
-          name: openstack.network_name,
-          admin_state_up: "true",
-        },
-      },
-      openstack_networking_subnet_v2: {
-        [openstack.network_name]: {
-          name: openstack.network_name,
-          network_id: "${openstack_networking_network_v2.%s.id}" % openstack.network_name,
-          cidr: openstack.network_cidr,
-          ip_version: 4,
-        },
-      },
-      openstack_networking_router_v2: {
-        [openstack.network_name]: {
-          name: openstack.network_name,
-          admin_state_up: "true",
-          external_gateway: openstack.external_gateway,
-        },
-      },
-      openstack_networking_router_interface_v2: {
-        [openstack.network_name]: {
-          router_id: "${openstack_networking_router_v2.%s.id}" % openstack.network_name,
-          subnet_id: "${openstack_networking_subnet_v2.%s.id}" % openstack.network_name,
-        },
-      },
       openstack_compute_instance_v2: {
         [names.master_instance]: instance_defaults {
           name: names.master_instance,
           key_pair: "${openstack_compute_keypair_v2.%s.name}" % names.key_pair,
           security_groups: [ "${openstack_compute_secgroup_v2.%s.name}" % names.security_group ],
           user_data: "${data.template_file.master.rendered}",
-          depends_on: ["openstack_networking_router_interface_v2.%s" % openstack.network_name],
         },
         [names.node_instance]: instance_defaults {
           name: "%s_${count.index+1}" % names.node_instance,
@@ -175,7 +146,6 @@ function(cfg)
           key_pair: "${openstack_compute_keypair_v2.%s.name}" % names.key_pair,
           security_groups: [ "${openstack_compute_secgroup_v2.%s.name}" % names.security_group ],
           user_data: "${data.template_file.node.rendered}",
-          depends_on: ["openstack_networking_router_interface_v2.%s" % openstack.network_name],
         },
       },
     },

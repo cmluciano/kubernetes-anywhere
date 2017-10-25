@@ -62,22 +62,10 @@ config phase1.openstack.network_name
 	help
 	  Name of the private Neutron network that would be created and VMs assigned to it.
 
-config phase1.openstack.network_cidr
-	string "CIDR of internal Neutron network"
-	help
-	  CIDR of the private Neutron network that would be created.
-
 config phase1.openstack.floatingip_pool_name
 	string "Name of external pool network"
 	help
 	  Name of the floating ip pool to use.
 	  You can retrieve this by running: `openstack ip floating pool list`
-
-config phase1.openstack.external_gateway
-	string "Network UUID of External Gateway"
-	help
-	  The network UUID of an external gateway for the router
-	  You can retrieve this by running: `openstack network show <external-network>`
-	  and picking the value against `id`.
 
 endmenu
